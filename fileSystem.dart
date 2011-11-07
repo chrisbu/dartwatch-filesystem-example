@@ -3,25 +3,36 @@
 void main() {
 	final String filename = "myFile.txt";
 
-	if (FileUtil.fileExists(filename)) {
+	File writableFile = new File(filename);
+
+	if (writableFile.existsSync()) {
 		print("File already exists, but we'll overwrite it");
 	}
+	else {
+		print("File doesn't exist - we'll create it");	
+		writableFile.createSync(); //not currently implemented in trunk - manually create the file!
+		print("Created");	
+	}
 
-	File writableFile = new File(filename, true);
+	writableFile.openSync(true);
+	writableFile.writeStringSync("Hello World\nGoodbye World");
 
-	writableFile.writeString("Hello World\nGoodbye World");
-	writableFile.close();
-	print("file ${filename} written and closed");
+	print("file ${filename} written ");
+	writableFile.closeSync();
+	print("file ${filename} closed");
 
-	File readableFile = new File(filename, false);
-	int fileLength = readableFile.length;
+
+	File readableFile = new File(filename);
+	readableFile.openSync(false);
+	int fileLength = readableFile.lengthSync();
 
 	//create a buffer big engough for the file
-	List<int> buffer = new List<int>(fileLength);
+	List<int> buffer = new List<int>(fileLength); 		
 	print("Opened ${filename} for reading, length= ${fileLength}");
 
 	//read the contents into the buffer from offset zero for the length of the file
-	readableFile.readList(buffer, 0, fileLength);
+	readableFile.readListSync(buffer, 0, fileLength);
+	readableFile.closeSync();
 
 	//convert the buffer back into a string
 	String s = new String.fromCharCodes(buffer);
